@@ -239,7 +239,10 @@ def run_time():
 def worker_stats(worker):
     tests = RESULTS[worker]
     num_tests = len(tests)
-    delta = (tests[-1]['timestamps'][1] or datetime.datetime.now()) - (tests[0]['timestamps'][0] or datetime.datetime.now())
+    delta = 0
+    if (tests[-1]['timestamps'][1] is not None and
+                tests[0]['timestamps'][0] is not None):
+        delta = tests[-1]['timestamps'][1] - tests[0]['timestamps'][0]
     return num_tests, delta
 
 
