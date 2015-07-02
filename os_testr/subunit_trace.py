@@ -239,7 +239,7 @@ def run_time():
 def worker_stats(worker):
     tests = RESULTS[worker]
     num_tests = len(tests)
-    delta = (tests[-1]['timestamps'][1] or 0) - (tests[0]['timestamps'][0] or 0)
+    delta = (tests[-1]['timestamps'][1] or datetime.datetime.now()) - (tests[0]['timestamps'][0] or datetime.datetime.now())
     return num_tests, delta
 
 
