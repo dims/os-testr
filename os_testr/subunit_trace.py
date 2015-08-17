@@ -147,7 +147,7 @@ def find_test_run_time_diff(test_id, run_time):
 
 
 def show_outcome(stream, test, print_failures=False, failonly=False,
-                 enable_diff=False, threshold='0', post_fails=False):
+                 enable_diff=False, threshold='0', abbreviate=False):
     global RESULTS
     status = test['status']
     # TODO(sdague): ask lifeless why on this?
@@ -168,7 +168,7 @@ def show_outcome(stream, test, print_failures=False, failonly=False,
 
     if status == 'fail':
         FAILS.append(test)
-        if post_fails:
+        if abbreviate:
             stream.write('F')
         else:
             stream.write('{%s} %s [%s] ... FAILED\n' % (
@@ -177,7 +177,7 @@ def show_outcome(stream, test, print_failures=False, failonly=False,
                 print_attachments(stream, test, all_channels=True)
     elif not failonly:
         if status == 'success':
-            if post_fails:
+            if abbreviate:
                 stream.write('.')
             else:
                 out_string = '{%s} %s [%s' % (worker, name, duration)
@@ -191,13 +191,13 @@ def show_outcome(stream, test, print_failures=False, failonly=False,
                 stream.write(out_string + '] ... ok\n')
                 print_attachments(stream, test)
         elif status == 'skip':
-            if post_fails:
+            if abbreviate:
                 stream.write('S')
             else:
                 stream.write('{%s} %s ... SKIPPED: %s\n' % (
                     worker, name, test['details']['reason'].as_text()))
         else:
-            if post_fails:
+            if abbreviate:
                 stream.write('%s' % test['status'][0])
             else:
                 stream.write('{%s} %s [%s] ... %s\n' % (
@@ -303,6 +303,9 @@ def parse_args():
                         default=(
                             os.environ.get('TRACE_FAILONLY', False)
                             is not False))
+    parser.add_argument('--abbreviate', '-a', action='store_true',
+                        dest='abbreviate', help='Print one character status'
+                                                'for each test')
     parser.add_argument('--perc-diff', '-d', action='store_true',
                         dest='enable_diff',
                         help="Print percent change in run time on each test ")
@@ -325,7 +328,7 @@ def main():
                           print_failures=args.print_failures,
                           failonly=args.failonly,
                           enable_diff=args.enable_diff,
-                          post_fails=args.post_fails))
+                          abbreviate=args.abbreviate))
     summary = testtools.StreamSummary()
     result = testtools.CopyStreamResult([outcomes, summary])
     result = testtools.StreamResultRouter(result)
